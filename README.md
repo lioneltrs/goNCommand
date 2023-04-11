@@ -1,5 +1,5 @@
 # goNCommand
-Bash script to convert one game (Ninja Commando) to a romset for Final Burn Alpha (or MAME)
+Bash script to convert one game (Ninja Commando for the Neo Geo arcade) to a romset for Final Burn Alpha (or MAME)
 ## Installation
 
 Put these files in a directory of your choice:
