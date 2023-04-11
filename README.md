@@ -8,9 +8,9 @@ Put these files in a directory of your choice:
     ss_unswizzle.c
 
 Then compile ss_unswizzle.c:
-
+```
     gcc -o ss_unswizzle ss_unswizzle.c
-
+```
 ## Usage
 1. Set the path MY_RAW_ROMS_DIR to point to the directory where Ninja Commando is installed. In this directory you will see files such as c1.bin and m1.bin. Example :
 
@@ -18,10 +18,9 @@ Then compile ss_unswizzle.c:
 
 2. Set the path MY_OUT_ROM_DIR_1 to a temporary directory of your choice.
 3. Run the scrip: 
-
-
+```
     ./goNCommand
-
+```
 
 You should get a ncommand.zip file in the directory where goNCommand is.
 
