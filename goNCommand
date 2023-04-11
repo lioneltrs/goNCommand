@@ -1,0 +1,64 @@
+#!/bin/sh
+# set -o xtrace
+# Lionel Cordesses, 2023.
+# Script to build a MAME or FBAlpha romset for Ninja Commando from the Amazon Prime Gaming game.
+
+#=========================================================
+MY_RAW_ROMS_DIR=/home/lionel2/provi/amazon/ninja_commando/rom
+#=========================================================
+# MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
+MY_OUT_ROM_DIR_1=/home/lionel2/provi/lionel_ncommand
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Do not edit the path below this line!
+#
+MY_OUT_ROM_DIR=$MY_OUT_ROM_DIR_1/ncommand
+
+rm -r $MY_OUT_ROM_DIR
+rm ncommand.zip
+mkdir -p $MY_OUT_ROM_DIR
+
+
+#exit 1
+
+#srec_cat $MY_RAW_ROMS_DIR/ffight.68k -Binary -split 2 1 -o $MY_RAW_ROMS_DIR2/68k_1.bin -Binary
+#srec_cat $MY_RAW_ROMS_DIR/ffight.68k -Binary -split 2 0 -o $MY_RAW_ROMS_DIR2/68k_0.bin -Binary
+
+dd if=/$MY_RAW_ROMS_DIR/v1.bin of=$MY_OUT_ROM_DIR/050-v1.v1 skip=0 count=$((0x100000)) iflag=skip_bytes,count_bytes
+
+dd if=/$MY_RAW_ROMS_DIR/v1.bin of=$MY_OUT_ROM_DIR/050-v2.v2 skip=$((0x100000)) count=$((0x080000)) iflag=skip_bytes,count_bytes
+
+# 050-m1.m1b
+# The first test with 0x20000 works in fbalpha, but fbneo complains that the CRC32 is wrong.
+# I tried with half of the size for data, and then 0xFF for the second half. It matches the CRC32.
+#dd if=/$MY_RAW_ROMS_DIR/m1.bin of=$MY_OUT_ROM_DIR/050-m1.m1 skip=$((0x0)) count=$((0x020000)) iflag=skip_bytes,count_bytes
+dd if=/$MY_RAW_ROMS_DIR/m1.bin of=$MY_OUT_ROM_DIR/050-m1.m1b skip=$((0x0)) count=$((0x010000)) iflag=skip_bytes,count_bytes
+# Create the 64KB of 0xff
+dd if=/dev/zero ibs=1k count=64 | tr "\000" "\377" >tmp0xFF.bin
+# Concat 050-m1.m1 and tmp0xFF.bin to create the final 050-m1.m1.
+#exit 1
+cat $MY_OUT_ROM_DIR/050-m1.m1b tmp0xFF.bin >$MY_OUT_ROM_DIR/050-m1.m1
+rm $MY_OUT_ROM_DIR/050-m1.m1b
+rm tmp0xFF.bin
+
+dd if=/$MY_RAW_ROMS_DIR/p1.bin of=$MY_OUT_ROM_DIR/050-p1.p1 skip=$((0x0)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+
+dd if=/$MY_RAW_ROMS_DIR/s2.bin of=$MY_OUT_ROM_DIR/050-s1.s1 skip=$((0x0)) count=$((0x020000)) iflag=skip_bytes,count_bytes
+
+# Sprites
+# It relies on the code writen in Ack post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
+./ss_unswizzle $MY_RAW_ROMS_DIR/c1.bin odd even
+split -b 1048576 even even_d
+split -b 1048576 odd odd_d
+
+mv even_daa $MY_OUT_ROM_DIR/050-c2.c2
+mv even_dab $MY_OUT_ROM_DIR/050-c4.c4
+
+mv odd_daa $MY_OUT_ROM_DIR/050-c1.c1
+mv odd_dab $MY_OUT_ROM_DIR/050-c3.c3
+
+rm even odd
+
+echo " zip -j -r ncommand.zip $MY_OUT_ROM_DIR"
+zip -j -r ncommand.zip $MY_OUT_ROM_DIR
+
+
