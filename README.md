@@ -8,7 +8,7 @@ Put these files in a directory of your choice:
     ss_unswizzle.c
 
 Then compile ss_unswizzle.c:
-```
+```sh
     gcc -o ss_unswizzle ss_unswizzle.c
 ```
 ## Usage
@@ -18,7 +18,7 @@ Then compile ss_unswizzle.c:
 
 2. Set the path MY_OUT_ROM_DIR_1 to a temporary directory of your choice.
 3. Run the scrip: 
-```
+```sh
     ./goNCommand
 ```
 
