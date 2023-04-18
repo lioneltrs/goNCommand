@@ -23,17 +23,17 @@ Then compile ss_unswizzle.c:
 2. Set the path MY_OUT_ROM_DIR_1 to a temporary directory of your choice.
 3. Run one of the three scripts: 
 
-'''
+```
 ./goNCommand
-'''
+```
 or
-'''
+```
 ./goGPilots
-'''
+```
 or
-'''
+```
 ./goAoF3
-'''
+```
 
 You should get a ncommand.zip (or gpilots.zip, or aof3.zip) file in the directory where goNCommand is.
 
