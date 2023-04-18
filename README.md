@@ -35,7 +35,7 @@ or
 ./goAoF3
 ```
 
-You should get a ncommand.zip (or gpilots.zip, or aof3.zip) file in the directory where goNCommand is.
+You should get a ncommand.zip (or gpilots.zip, or aof3.zip) file in the directory where the script is.
 
 ## Background and information
 The C code ss_unswizzle.c was written by ark (the script goNCommand links to the original post where I found it).
