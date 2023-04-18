@@ -1,28 +1,41 @@
 # goNCommand
-Bash script to convert one game (Ninja Commando for the Neo Geo arcade) to a romset for Final Burn Alpha (or MAME)
+
+goNCommand is a Bash script to convert three games (Ninja Commando, Ghost Pilots, Art of Fighting 3) to a romset for Final Burn Alpha (or MAME).
+
 ## Installation
 
 Put these files in a directory of your choice:
 
     goNCommand
+    goGPilots
+    goAoF3
     ss_unswizzle.c
 
 Then compile ss_unswizzle.c:
-```sh
+
     gcc -o ss_unswizzle ss_unswizzle.c
-```
+
 ## Usage
 1. Set the path MY_RAW_ROMS_DIR to point to the directory where Ninja Commando is installed. In this directory you will see files such as c1.bin and m1.bin. Example :
 
     MY_RAW_ROMS_DIR=/home/lionel2/provi/amazon/ninja_commando/rom
 
 2. Set the path MY_OUT_ROM_DIR_1 to a temporary directory of your choice.
-3. Run the scrip: 
-```sh
-    ./goNCommand
-```
+3. Run one of the three scripts: 
 
-You should get a ncommand.zip file in the directory where goNCommand is.
+'''
+./goNCommand
+'''
+or
+'''
+./goGPilots
+'''
+or
+'''
+./goAoF3
+'''
+
+You should get a ncommand.zip (or gpilots.zip, or aof3.zip) file in the directory where goNCommand is.
 
 ## Background and information
 The C code ss_unswizzle.c was written by ark (the script goNCommand links to the original post where I found it).
