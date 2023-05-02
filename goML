@@ -1,0 +1,96 @@
+#!/bin/bash
+#
+# Lionel Cordesses, 2023.
+# Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for Magician Lord, from the Amazon Prime Gaming game.
+#
+
+#=========================================================
+MY_RAW_ROMS_DIR="/home/lionel2/provi/amazon/Magician Lord/Data/rom"
+#=========================================================
+# MY_OUT_ROM_DIR_1 is the temporary output directory for ninjamas
+MY_OUT_ROM_DIR_1="/home/lionel2/provi/lionel_ml"
+#=========================================================
+MY_ZIP_NAME=maglord
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Do not edit the path below this line!
+#
+MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
+
+# Test if zip is installed.
+if ! command -v zip &> /dev/null
+then
+    echo "zip could not be found. Maybe "sudo apt-get install zip"?"
+    exit
+fi
+
+# Test is ss_unswizzle.c has been compiled.
+if ! command -v ./ss_unswizzle &> /dev/null
+then
+    echo "ss_unswizzle could not be found. You may try: gcc -o ss_unswizzle ss_unswizzle.c"
+    exit
+fi
+
+# Delete files and directories froms previous runs.
+rm -r "$MY_OUT_ROM_DIR"
+rm "$MY_ZIP_NAME".zip
+rm "$MY_ZIP_NAME".zip_original
+mkdir -p "$MY_OUT_ROM_DIR"
+
+# Check if s2.bin is available, and copy it as 005-s1.s1.
+if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
+    echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
+fi
+
+cp "$MY_RAW_ROMS_DIR"/s2.bin "$MY_OUT_ROM_DIR"/005-s1.s1
+
+
+# Sound data
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/005-v1.v1 skip=0 count=$((0x080000)) iflag=skip_bytes,count_bytes
+
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/005-v2.v2 skip=$((0x080000)) count=$((0x080000)) iflag=skip_bytes,count_bytes
+
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/005-v3.v3 skip=$(( $((0x080000))+$((0x080000)) )) count=$((0x080000)) iflag=skip_bytes,count_bytes
+
+# Z80 code
+# The following line works with FBAlpha, but FBNeo complains about the CRC32. I then tried the same trick that I used for Ninja Commando: half of the size and 0xff padding. It does not work. It is a quarter of the size (64 kB) and 64 kB of 0xff, then the same pattern again (it looks like the memory was read twice).
+#dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$MY_OUT_ROM_DIR"/005-m1.m1 skip=$((0x0)) count=$((0x040000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$MY_OUT_ROM_DIR"/005-m1.m1b skip=$((0x0)) count=$((0x010000)) iflag=skip_bytes,count_bytes
+# Create the 64KB of 0xff
+dd if=/dev/zero ibs=1k count=64 | tr "\000" "\377" >tmp0xFF.bin
+# Concat 005-m1.m1 and tmp0xFF.bin to create the final 005-m1.m1.
+cat "$MY_OUT_ROM_DIR"/005-m1.m1b tmp0xFF.bin >"$MY_OUT_ROM_DIR"/005-m1.m1c
+cat "$MY_OUT_ROM_DIR"/005-m1.m1c "$MY_OUT_ROM_DIR"/005-m1.m1c > "$MY_OUT_ROM_DIR"/005-m1.m1
+rm "$MY_OUT_ROM_DIR"/005-m1.m1b
+rm "$MY_OUT_ROM_DIR"/005-m1.m1c
+rm tmp0xFF.bin
+
+# 68K code
+# Note: the 005-p1.p1 CRC32 is wrong. It is the same issue that I encountered with Ninja Commando and Ghost Pilots.
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/005-pg1.p1 skip=$((0x0)) count=$((0x080000)) iflag=skip_bytes,count_bytes
+#dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/005-p2.sp2 skip=$((0x100000)) count=$((0x200000)) iflag=skip_bytes,count_bytes
+
+# Sprites
+# It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
+./ss_unswizzle "$MY_RAW_ROMS_DIR"/c1.bin odd even
+split -b 524288 even even_d
+split -b 524288 odd odd_d
+
+mv even_daa "$MY_OUT_ROM_DIR"/005-c2.c2
+mv even_dab "$MY_OUT_ROM_DIR"/005-c4.c4
+mv even_dac "$MY_OUT_ROM_DIR"/005-c6.c6
+#mv even_dad "$MY_OUT_ROM_DIR"/005-c8.c8
+
+mv odd_daa "$MY_OUT_ROM_DIR"/005-c1.c1
+mv odd_dab "$MY_OUT_ROM_DIR"/005-c3.c3
+mv odd_dac "$MY_OUT_ROM_DIR"/005-c5.c5
+#mv odd_dad "$MY_OUT_ROM_DIR"/005-c7.c7
+
+rm even odd
+
+zip -j -r "$MY_ZIP_NAME".zip_original "$MY_OUT_ROM_DIR"
+
+# Modification of the first 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
+printf '\x00' | dd of="$MY_OUT_ROM_DIR"/005-pg1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
+
+zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
+
