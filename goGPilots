@@ -1,17 +1,19 @@
 #!/bin/bash
 #
 # Lionel Cordesses, 2023.
-# Script to build a MAME or FBAlpha romset for Ghost Pilots from the Amazon Prime Gaming game.
+# Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for Ghost Pilots from the Amazon Prime Gaming game.
 
 #=========================================================
 MY_RAW_ROMS_DIR="/home/lionel2/provi/amazon/Ghost Pilots/Data/rom"
 #=========================================================
 # MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
 MY_OUT_ROM_DIR_1="/home/lionel2/provi/lionel_gpilots"
+#=========================================================
+MY_ZIP_NAME=gpilots
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Do not edit the path below this line!
 #
-MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/gpilots
+MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
 
 # Test if zip is installed.
 if ! command -v zip &> /dev/null
@@ -23,13 +25,14 @@ fi
 # Test is ss_unswizzle.c has been compiled.
 if ! command -v ./ss_unswizzle &> /dev/null
 then
-    echo "ss_unswizzle could not be found. Maybe try: "gcc -o ss_unswizzle ss_unswizzle.c"?"
+    echo "ss_unswizzle could not be found. You may try: gcc -o ss_unswizzle ss_unswizzle.c"
     exit
 fi
 
 # Delete files and directories froms previous runs.
 rm -r "$MY_OUT_ROM_DIR"
-rm gpilots.zip
+rm "$MY_ZIP_NAME".zip
+rm "$MY_ZIP_NAME".zip_original
 mkdir -p "$MY_OUT_ROM_DIR"
 
 # Check if s2.bin is available, and copy it as 020-s1.s1.
@@ -69,6 +72,12 @@ mv odd_dab "$MY_OUT_ROM_DIR"/020-c3.c3
 
 rm even odd
 
-zip -j -r gpilots.zip "$MY_OUT_ROM_DIR"
+zip -j -r "$MY_ZIP_NAME".zip_original "$MY_OUT_ROM_DIR"
+
+# Modification of the first 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
+printf '\x00' | dd of="$MY_OUT_ROM_DIR"/020-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
+
+zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
+
 
 
