@@ -1,6 +1,6 @@
 # goNCommand
 
-goNCommand is a Bash script to convert three games (Ninja Commando, Ghost Pilots, Art of Fighting 3), Magician Lord, Ninja Master's, Crossed Swords to a romset for Final Burn Alpha or MAME or FBNeo.
+goNCommand is a Bash script to convert six games (Ninja Commando, Ghost Pilots, Art of Fighting 3, Magician Lord, Ninja Master's, Crossed Swords) to romsets for Final Burn Alpha or MAME or FBNeo.
 
 ## Installation
 
