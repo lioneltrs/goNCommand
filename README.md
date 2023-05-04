@@ -1,6 +1,6 @@
 # goNCommand
 
-goNCommand is a Bash script to convert six games (Ninja Commando, Ghost Pilots, Art of Fighting 3, Magician Lord, Ninja Master's, Crossed Swords) to romsets for Final Burn Alpha or MAME or FBNeo.
+goNCommand is a set of Bash scripts to convert six games (Ninja Commando, Ghost Pilots, Art of Fighting 3, Magician Lord, Ninja Master's, Crossed Swords) to romsets for Final Burn Alpha, MAME or FBNeo.
 
 ## Installation
 
@@ -10,6 +10,8 @@ Put these files in a directory of your choice:
     goGPilots
     goAoF3
     goML
+    goNM
+    goCS
     ss_unswizzle.c
 
 Then compile ss_unswizzle.c:
@@ -17,12 +19,12 @@ Then compile ss_unswizzle.c:
     gcc -o ss_unswizzle ss_unswizzle.c
 
 ## Usage
-1. Set the path MY_RAW_ROMS_DIR to point to the directory where Ninja Commando is installed. In this directory you will see files such as c1.bin and m1.bin. Example :
+1. Set the path MY_RAW_ROMS_DIR to point to the directory where Ninja Commando (or another supported game) is installed. In this directory, you will see files such as c1.bin and m1.bin. Example :
 
     MY_RAW_ROMS_DIR=/home/lionel2/provi/amazon/ninja_commando/rom
 
 2. Set the path MY_OUT_ROM_DIR_1 to a temporary directory of your choice.
-3. Run one of the three scripts: 
+3. Run one of the six scripts: 
 
 ```
 ./goNCommand
@@ -43,6 +45,7 @@ or
 ```
 ./goNM
 ```
+or
 ```
 ./goCS
 ```
