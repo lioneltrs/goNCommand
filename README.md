@@ -36,7 +36,7 @@ or
 ./goGPilots
 ```
 or ./goAoF3 or ./goML or ./goNM or ./goCS or ./goSengoku or ./goSuperS
-```
+
 You should get a ncommand.zip file (or gpilots.zip, or aof3.zip, or maglord.zip, or ninjamas.zip, or crsword.zip, or sengoku.zip, or ssideki.zip) in the directory where the script is.
 
 ## Background and information
