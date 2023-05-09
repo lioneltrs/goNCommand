@@ -1,6 +1,6 @@
 # goNCommand
 
-goNCommand is a set of Bash scripts to convert eight games (Ninja Commando, Ghost Pilots, Art of Fighting 3, Magician Lord, Ninja Master's, Crossed Swords, Sengoku, Super Sidekicks) to romsets for Final Burn Alpha, MAME or FBNeo.
+goNCommand is a set of Bash scripts to convert nine games (Ninja Commando, Ghost Pilots, Art of Fighting 3, Magician Lord, Ninja Master's, Crossed Swords, Sengoku, Super Sidekicks, The Last Blade 2) to romsets for Final Burn Alpha, MAME or FBNeo.
 
 ## Installation
 
@@ -14,6 +14,7 @@ Put these files in a directory of your choice:
     goCS
     goSengoku
     goSuperS
+    goLB2
     ss_unswizzle.c
 
 Then compile ss_unswizzle.c:
@@ -35,9 +36,9 @@ or
 ```
 ./goGPilots
 ```
-or ./goAoF3 or ./goML or ./goNM or ./goCS or ./goSengoku or ./goSuperS
+or ./goAoF3 or ./goML or ./goNM or ./goCS or ./goSengoku or ./goSuperS or ./goLB2
 
-You should get a ncommand.zip file (or gpilots.zip, or aof3.zip, or maglord.zip, or ninjamas.zip, or crsword.zip, or sengoku.zip, or ssideki.zip) in the directory where the script is.
+You should get a ncommand.zip file (or gpilots.zip, or aof3.zip, or maglord.zip, or ninjamas.zip, or crsword.zip, or sengoku.zip, or ssideki.zip, or  lastbld2.zip) in the directory where the script is.
 
 ## Background and information
 The C code ss_unswizzle.c was written by ark (the script goNCommand links to the original post where I found it).
