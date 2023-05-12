@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+# Lionel Cordesses, 2023.
+# Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for Samurai Showdown IV, from the Amazon Prime Gaming game.
+
+#=========================================================
+MY_RAW_ROMS_DIR="/home/dalmo/Documenti/goNCommand-main/romSSIV/"
+#=========================================================
+# MY_OUT_ROM_DIR_1 is the temporary output directory for ninjamas
+MY_OUT_ROM_DIR_1="/home/dalmo/Documenti/goNCommand-main/tmp/"
+#=========================================================
+MY_ZIP_NAME=samsho4
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Do not edit the path below this line!
+#
+MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
+
+# Test if zip is installed.
+if ! command -v zip &> /dev/null
+then
+    echo "zip could not be found. Maybe "sudo apt-get install zip"?"
+    exit
+fi
+
+# Test is ss_unswizzle.c has been compiled.
+if ! command -v ./ss_unswizzle &> /dev/null
+then
+    echo "ss_unswizzle could not be found. You may try: gcc -o ss_unswizzle ss_unswizzle.c"
+    exit
+fi
+
+# Delete files and directories froms previous runs.
+rm -r "$MY_OUT_ROM_DIR"
+rm "$MY_ZIP_NAME".zip
+rm "$MY_ZIP_NAME".zip_original
+mkdir -p "$MY_OUT_ROM_DIR"
+
+# Check if s2.bin is available, and copy it as 037-s1.s1.
+if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
+    echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
+fi
+
+cp "$MY_RAW_ROMS_DIR"/s2.bin "$MY_OUT_ROM_DIR"/222-s1.s1
+
+
+# Sound data
+#./ss_unswizzle "$MY_RAW_ROMS_DIR"/v1.bin odd even
+#split -b 1048576 even even_d
+#split -b 1048576 odd odd_d
+
+#mv even_daa "$MY_OUT_ROM_DIR"/222-v2.v2
+#dd if=even_dab of="$MY_OUT_ROM_DIR"/222-v2.v2 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+#dd if=even_dac of="$MY_OUT_ROM_DIR"/222-v2.v2 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+#dd if=even_dad of="$MY_OUT_ROM_DIR"/222-v2.v2 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+#mv even_dae "$MY_OUT_ROM_DIR"/222-v3.v3
+
+#mv odd_daa "$MY_OUT_ROM_DIR"/222-v1.v1
+#dd if=odd_dab of="$MY_OUT_ROM_DIR"/222-v1.v1 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+#dd if=odd_dac of="$MY_OUT_ROM_DIR"/222-v1.v1 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+#dd if=odd_dad of="$MY_OUT_ROM_DIR"/222-v1.v1 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+#dd if=odd_dae of="$MY_OUT_ROM_DIR"/222-v3.v3 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+
+# Z80 code
+dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$MY_OUT_ROM_DIR"/222-m1.m1 skip=0 count=$((0x80000)) iflag=skip_bytes,count_bytes
+
+# 68K code
+# Note: the 037-p1.p1 CRC32 is wrong. It is the same issue that I encountered with Ninja Commando and Ghost Pilots.
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/222-p1.p1 skip=$((0x0)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/222-p2.sp2 skip=$((0x100000)) count=$((0x400000)) iflag=skip_bytes,count_bytes
+#dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/222-p3c.p3 skip=$((0x800000)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+
+# Sprites
+# It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
+./ss_unswizzle "$MY_RAW_ROMS_DIR"/c1.bin odd even
+split -b 4194304 even even_d
+split -b 4194304 odd odd_d
+
+mv even_daa "$MY_OUT_ROM_DIR"/222-c2c.c2
+mv even_dab "$MY_OUT_ROM_DIR"/222-c4c.c4
+mv even_dac "$MY_OUT_ROM_DIR"/222-c6c.c6
+mv even_dad "$MY_OUT_ROM_DIR"/222-c8c.c8
+
+mv odd_daa "$MY_OUT_ROM_DIR"/222-c1c.c1
+mv odd_dab "$MY_OUT_ROM_DIR"/222-c3c.c3
+mv odd_dac "$MY_OUT_ROM_DIR"/222-c5c.c5
+mv odd_dad "$MY_OUT_ROM_DIR"/222-c7c.c7
+
+rm even odd
+
+#zip -j -r "$MY_ZIP_NAME".zip_original "$MY_OUT_ROM_DIR"
+
+# Modification of the first 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
+printf '\x00' | dd of="$MY_OUT_ROM_DIR"/222-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
+
+#zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
+
+
