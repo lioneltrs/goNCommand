@@ -1,9 +1,11 @@
 #!/bin/bash
 #
-# Tomasz Bednarz, 2023 
-# based on work by 
+# Tomasz Bednarz, 2023
+# based on work by
 # Lionel Cordesses, 2023.
 # Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for Last Blade 2, from the Amazon Prime Gaming game.
+
+. ./romExtractionTools.sh
 
 #=========================================================
 MY_RAW_ROMS_DIR="/home/lionel2/provi/amazon/The Last Blade 2/Data/rom"
@@ -17,25 +19,9 @@ MY_ZIP_NAME=lastbld2
 #
 MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
 
-# Test if zip is installed.
-if ! command -v zip &> /dev/null
-then
-    echo "zip could not be found. Maybe "sudo apt-get install zip"?"
-    exit
-fi
-
-# Test is ss_unswizzle.c has been compiled.
-if ! command -v ./ss_unswizzle &> /dev/null
-then
-    echo "ss_unswizzle could not be found. You may try: gcc -o ss_unswizzle ss_unswizzle.c"
-    exit
-fi
-
-# Delete files and directories froms previous runs.
-rm -r "$MY_OUT_ROM_DIR"
-rm "$MY_ZIP_NAME".zip
-rm "$MY_ZIP_NAME".zip_original
-mkdir -p "$MY_OUT_ROM_DIR"
+checkForZip
+checkForCompiledSwizzle
+cleanFilesForReRun $MY_OUT_ROM_DIR, $MY_ZIP_NAME
 
 # Check if s1.bin is available, and copy it as 243-s1.s1.
 if [ ! -f "$MY_RAW_ROMS_DIR"/s1.bin ]; then
@@ -46,21 +32,21 @@ cp "$MY_RAW_ROMS_DIR"/s1.bin "$MY_OUT_ROM_DIR"/243-s1.s1
 
 
 # Sound data
-dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/243-v1.v1 skip=0 count=$((0x400000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/243-v1.v1 skip=0 count=$((0x400000)) iflag=$IFLAG
 
-dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/243-v2.v2 skip=$((0x400000)) count=$((0x400000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/243-v2.v2 skip=$((0x400000)) count=$((0x400000)) iflag=$IFLAG
 
-dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/243-v2.v3 skip=$((0x800000)) count=$((0x400000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/243-v2.v3 skip=$((0x800000)) count=$((0x400000)) iflag=$IFLAG
 
-dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/243-v2.v4 skip=$((0xC00000)) count=$((0x400000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/243-v2.v4 skip=$((0xC00000)) count=$((0x400000)) iflag=$IFLAG
 
 
 # Z80 code
 cp "$MY_RAW_ROMS_DIR"/m1.bin "$MY_OUT_ROM_DIR"/243-m1.m1
 
 # 68K code
-dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/243-pg1.p1 skip=$((0x0)) count=$((0x100000)) iflag=skip_bytes,count_bytes
-dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/243-pg2.p2 skip=$((0x100000)) count=$((0x400000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/243-pg1.p1 skip=$((0x0)) count=$((0x100000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/243-pg2.p2 skip=$((0x100000)) count=$((0x400000)) iflag=$IFLAG
 
 # Sprites
 # It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
