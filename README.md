@@ -1,6 +1,6 @@
 # goNCommand
 
-goNCommand is a set of Bash scripts to convert nine games (Ninja Commando, Ghost Pilots, Art of Fighting 3, Magician Lord, Ninja Master's, Crossed Swords, Sengoku, Super Sidekicks, The Last Blade 2) to romsets for Final Burn Alpha, MAME or FBNeo.
+goNCommand is a set of Bash scripts to convert nine games (Ninja Commando, Ghost Pilots, Art of Fighting 3, Magician Lord, Ninja Master's, Crossed Swords, Sengoku, Super Sidekicks, The Last Blade 2, Robo Army, Samurai Shodown IV, Last Resort) to romsets for Final Burn Alpha, MAME or FBNeo.
 
 ## Installation
 
@@ -15,6 +15,9 @@ Put these files in a directory of your choice:
     goSengoku
     goSuperS
     goLB2
+    goRA
+    goSS4_a
+    goLR
     ss_unswizzle.c
 
 Then compile ss_unswizzle.c:
@@ -36,9 +39,9 @@ or
 ```
 ./goGPilots
 ```
-or ./goAoF3 or ./goML or ./goNM or ./goCS or ./goSengoku or ./goSuperS or ./goLB2
+or ./goAoF3 or ./goML or ./goNM or ./goCS or ./goSengoku or ./goSuperS or ./goLB2 or ./goRA or ./goSS4_a or /goLR.
 
-You should get a ncommand.zip file (or gpilots.zip, or aof3.zip, or maglord.zip, or ninjamas.zip, or crsword.zip, or sengoku.zip, or ssideki.zip, or  lastbld2.zip) in the directory where the script is.
+You should get a ncommand.zip file (or gpilots.zip, or aof3.zip, or maglord.zip, or ninjamas.zip, or crsword.zip, or sengoku.zip, or ssideki.zip, or  lastbld2.zip, or roboarmy.zip, or samsho4.zip, or lresort.zip) in the directory where the script is.
 
 ## Background and information
 The C code ss_unswizzle.c was written by ark (the script goNCommand links to the original post where I found it).
@@ -46,6 +49,8 @@ The C code ss_unswizzle.c was written by ark (the script goNCommand links to the
 The script goNCommand creates all but one file that match FBNeo CRC32. The file 050-p1.p1 does not match the CRC32 given by FBNeo, and I do not know how to fix this, as it is a simple copy of the original file. The game seems to run fine: feel free to investigate.
 
 Update: a friend noticed that 050-p1.p1 differs from the "known" file only at one address. I updated all the scripts, as it seems to be the case for all of them.
+
+Thank you to contributors Lx32, RedundantCich for theirs scripts.
 
 Other useful scripts to extract and convert games are available from:
 + https://gitlab.com/vaiski/romextract
@@ -56,7 +61,7 @@ Other useful scripts to extract and convert games are available from:
 
 ## Contributing
 
-Feel free to fork this code (and solve the mystery of 050-p1.p1 wrong CRC32).
+Feel free to fork this code (and solve the Metal Slug 4 or the King of Fighters 2003 problems).
 
 ## License
 
