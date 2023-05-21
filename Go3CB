@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Tomasz Bednarz, 2023
+# based on work by
 # Lionel Cordesses, 2023.
 # Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for 3 Count Bout from the Amazon Prime Gaming game.
 
