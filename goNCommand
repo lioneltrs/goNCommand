@@ -20,7 +20,7 @@ MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
 
 checkForZip
 checkForCompiledSwizzle
-cleanFilesForReRun $MY_OUT_ROM_DIR, $MY_ZIP_NAME
+cleanFilesForReRun $MY_OUT_ROM_DIR $MY_ZIP_NAME
 
 # Check if s2.bin is available, and copy it as 005-s1.s1.
 if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
