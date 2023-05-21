@@ -1,0 +1,71 @@
+#!/bin/bash
+#
+# Lionel Cordesses, 2023.
+# Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for Alpha Mission II from the Amazon Prime Gaming game.
+
+. ./romExtractionTools.sh
+
+#=========================================================
+MY_RAW_ROMS_DIR="/home/lionel2/provi/amazon/Alpha Mission II/Data/rom"
+#=========================================================
+# MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
+MY_OUT_ROM_DIR_1="/home/lionel2/provi/lionel_alpham2"
+#=========================================================
+MY_ZIP_NAME=alpham2
+ROM_ID="007"
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Do not edit the path below this line!
+#
+MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
+
+checkForZip
+checkForCompiledSwizzle
+cleanFilesForReRun $MY_OUT_ROM_DIR $MY_ZIP_NAME
+
+# Check if s2.bin is available, and copy it as 096-s1.s1.
+if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
+    echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
+fi
+
+cp "$MY_RAW_ROMS_DIR"/s2.bin "$MY_OUT_ROM_DIR"/"$ROM_ID"-s1.s1
+
+
+# Sound data
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v1.v1 skip=0 count=$((0x100000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v2.v2 skip=$((0x100000)) count=$((0x100000)) iflag=$IFLAG
+
+# Z80 code
+dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b skip=$((0x0)) count=$((0x010000)) iflag=$IFLAG
+# Create the 64KB of 0xff
+dd if=/dev/zero ibs=1k count=64 | tr "\000" "\377" >tmp0xFF.bin
+# Concat 050-m1.m1 and tmp0xFF.bin to create the final 050-m1.m1.
+cat "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b tmp0xFF.bin >"$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1
+rm "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b
+rm tmp0xFF.bin
+
+# 68K code
+# Note: the 096-p1.p1 CRC32 is wrong. It is the same issue that I encountered with Ninja Commando and Ghost Pilots.
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 skip=$((0x0)) count=$((0x80000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p2.p2 skip=$((0x80000)) count=$((0x20000)) iflag=$IFLAG
+
+# Sprites
+# It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
+./ss_unswizzle "$MY_RAW_ROMS_DIR"/c1.bin odd even
+split -b 1048576 even even_d
+split -b 1048576 odd odd_d
+
+mv even_daa "$MY_OUT_ROM_DIR"/"$ROM_ID"-c2.c2
+mv even_dab "$MY_OUT_ROM_DIR"/"$ROM_ID"-c4.c4
+
+mv odd_daa "$MY_OUT_ROM_DIR"/"$ROM_ID"-c1.c1
+mv odd_dab "$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3
+
+rm even odd
+
+zip -j -r aof3.zip_original "$MY_OUT_ROM_DIR"
+
+# Modification of the 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
+printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
+
+zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
+
