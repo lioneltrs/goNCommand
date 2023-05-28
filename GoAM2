@@ -49,6 +49,8 @@ rm tmp0xFF.bin
 # Note: the 096-p1.p1 CRC32 is wrong. It is the same issue that I encountered with Ninja Commando and Ghost Pilots.
 dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 skip=$((0x0)) count=$((0x80000)) iflag=$IFLAG
 dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p2.p2 skip=$((0x80000)) count=$((0x20000)) iflag=$IFLAG
+# Modification of the 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
+printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
 
 # Sprites
 # It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
@@ -64,10 +66,4 @@ mv odd_dab "$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3
 
 rm even odd
 
-zip -j -r aof3.zip_original "$MY_OUT_ROM_DIR"
-
-# Modification of the 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
-printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
-
 zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
-

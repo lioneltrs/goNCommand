@@ -28,15 +28,12 @@ if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
 fi
 dd if="$MY_RAW_ROMS_DIR"/s2.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-s1.s1 skip=$((0x0)) count=$((0x020000)) iflag=$IFLAG
 
+# Sound data
 dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v2.v2 skip=$((0x100000)) count=$((0x080000)) iflag=$IFLAG
-
 dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v1.v1 skip=0 count=$((0x100000)) iflag=$IFLAG
-
 dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v2.v2 skip=$((0x100000)) count=$((0x080000)) iflag=$IFLAG
 
-# 050-m1.m1b
 # The first test with 0x20000 works in FBAlpha, but FBNeo complains that the CRC32 is wrong.
-#dd if=/$MY_RAW_ROMS_DIR/m1.bin of=$MY_OUT_ROM_DIR/"$ROM_ID"-m1.m1 skip=$((0x0)) count=$((0x020000)) iflag=$IFLAG
 # I then tried with half of the size for the data, and then 0xFF for the second half. It matches the CRC32.
 dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b skip=$((0x0)) count=$((0x010000)) iflag=$IFLAG
 # Create the 64KB of 0xff
@@ -46,8 +43,10 @@ cat "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b tmp0xFF.bin >"$MY_OUT_ROM_DIR"/"$ROM_ID"-
 rm "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b
 rm tmp0xFF.bin
 
+# 68K code
 dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 skip=$((0x0)) count=$((0x100000)) iflag=$IFLAG
-
+# Modification of the 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
+printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
 
 # Sprites
 # It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
@@ -63,11 +62,4 @@ mv odd_dab "$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3
 
 rm even odd
 
-zip -j -r "$MY_ZIP_NAME".zip_original "$MY_OUT_ROM_DIR"
-
-# Modification of the 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
-printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
-
 zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
-
-

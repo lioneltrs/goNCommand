@@ -34,17 +34,13 @@ dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v1.v1 skip=0 coun
 
 # Z80 code
 dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1 skip=$((0x0)) count=$((0x020000)) iflag=$IFLAG
-# Create the 64KB of 0xff
-dd if=/dev/zero ibs=1k count=64 | tr "\000" "\377" >tmp0xFF.bin
-# Concat 050-m1.m1 and tmp0xFF.bin to create the final 050-m1.m1.
-#cat "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b tmp0xFF.bin >"$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1
-rm "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b
-rm tmp0xFF.bin
 
 # 68K code
 # Note: the 052-p1.p1 CRC32 is wrong. It is the same issue that I encountered with Ninja Commando and Ghost Pilots.
 dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 skip=$((0x0)) count=$((0x080000)) iflag=$IFLAG
-#dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p2.sp2 skip=$((0x100000)) count=$((0x200000)) iflag=$IFLAG
+# Modification of the first 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
+printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
+
 
 # Sprites
 # It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
@@ -56,12 +52,4 @@ cat odd1 odd3 >"$MY_OUT_ROM_DIR"/"$ROM_ID"-c1.c1
 cat even1 even3 >"$MY_OUT_ROM_DIR"/"$ROM_ID"-c2.c2
 rm odd1 odd3 even1 even3 provi_c1.bin provi_c3.bin
 
-
-#zip -j -r "$MY_ZIP_NAME".zip_original "$MY_OUT_ROM_DIR"
-
-# Modification of the first 68K file to comply with FBNeo CRC32: replace byte at address 0x115 (value = 02) by (value = 00).
-printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
-
 zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
-
-

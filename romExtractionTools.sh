@@ -30,6 +30,5 @@ function checkForCompiledSwizzle() {
 function cleanFilesForReRun() {
     rm -r "$1"
     rm "$2".zip
-    rm "$2".zip_original
     mkdir -p "$1"
 }

@@ -26,20 +26,16 @@ cleanFilesForReRun $MY_OUT_ROM_DIR $MY_ZIP_NAME
 if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
     echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
 fi
-
 cp "$MY_RAW_ROMS_DIR"/s2.bin "$MY_OUT_ROM_DIR"/"$ROM_ID"-s1.s1
-
 
 # Sound data
 dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v1.v1 skip=0 count=$((0x080000)) iflag=$IFLAG
-
 dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v2.v2 skip=$((0x080000)) count=$((0x080000)) iflag=$IFLAG
-
 dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v3.v3 skip=$(( $((0x080000))+$((0x080000)) )) count=$((0x080000)) iflag=$IFLAG
 
 # Z80 code
-# The following line works with FBAlpha, but FBNeo complains about the CRC32. I then tried the same trick that I used for Ninja Commando: half of the size and 0xff padding. It does not work. It is a quarter of the size (64 kB) and 64 kB of 0xff, then the same pattern again (it looks like the memory was read twice).
-#dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1 skip=$((0x0)) count=$((0x040000)) iflag=$IFLAG
+# The following line works with FBAlpha, but FBNeo complains about the CRC32. I then tried the same trick that I used for Ninja Commando: half of the size and 0xff padding.
+# It does not work. It is a quarter of the size (64 kB) and 64 kB of 0xff, then the same pattern again (it looks like the memory was read twice).
 dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1b skip=$((0x0)) count=$((0x010000)) iflag=$IFLAG
 # Create the 64KB of 0xff
 dd if=/dev/zero ibs=1k count=64 | tr "\000" "\377" >tmp0xFF.bin
@@ -53,7 +49,6 @@ rm tmp0xFF.bin
 # 68K code
 # Note: the 005-p1.p1 CRC32 is wrong. It is the same issue that I encountered with Ninja Commando and Ghost Pilots.
 dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-pg1.p1 skip=$((0x0)) count=$((0x080000)) iflag=$IFLAG
-#dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p2.sp2 skip=$((0x100000)) count=$((0x200000)) iflag=$IFLAG
 
 # Sprites
 # It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
@@ -64,12 +59,10 @@ split -b 524288 odd odd_d
 mv even_daa "$MY_OUT_ROM_DIR"/"$ROM_ID"-c2.c2
 mv even_dab "$MY_OUT_ROM_DIR"/"$ROM_ID"-c4.c4
 mv even_dac "$MY_OUT_ROM_DIR"/"$ROM_ID"-c6.c6
-#mv even_dad "$MY_OUT_ROM_DIR"/"$ROM_ID"-c8.c8
 
 mv odd_daa "$MY_OUT_ROM_DIR"/"$ROM_ID"-c1.c1
 mv odd_dab "$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3
 mv odd_dac "$MY_OUT_ROM_DIR"/"$ROM_ID"-c5.c5
-#mv odd_dad "$MY_OUT_ROM_DIR"/"$ROM_ID"-c7.c7
 
 rm even odd
 
@@ -79,4 +72,3 @@ zip -j -r "$MY_ZIP_NAME".zip_original "$MY_OUT_ROM_DIR"
 printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-pg1.p1 bs=1 seek=$((0x115)) count=1 conv=notrunc
 
 zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
-
