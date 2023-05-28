@@ -1,23 +1,30 @@
 # goNCommand
 
-goNCommand is a set of Bash scripts to convert twelve games (Ninja Commando, Ghost Pilots, Art of Fighting 3, Magician Lord, Ninja Master's, Crossed Swords, Sengoku, Super Sidekicks, The Last Blade 2, Robo Army, Samurai Shodown IV, Last Resort) to romsets for Final Burn Alpha, MAME or FBNeo.
+goNCommand is a set of Bash scripts to convert 17 games to romsets for Final Burn Alpha, MAME or FBNeo.
+
+005 | maglord  | Magician Lord
+007 | alpham2  | Alpha Mission II
+017 | sengoku  | Sengoku
+020 | gpilots  | Ghost Pilots
+024 | lresort  | Last Resort
+032 | roboarmy | Robo Army
+037 | crsword  | Crossed Swords
+039 | kotm2    | King of the Monsters 2
+043 | 3countb  | 3 Count Bout
+050 | ncommand | Ninja Commando
+052 | ssideki  | Super Sidekicks
+096 | aof3     | Art of Fighting 3
+216 | kizuna   | Kizuna Encounter
+217 | ninjamas | Ninja Master's
+222 | samsho4  | Samurai Shodown IV
+232 | kof97    | King of Fghters '97
+243 | lastbld2 | Last Blade 2
 
 ## Installation
 
 Put these files in a directory of your choice:
 
-    goNCommand
-    goGPilots
-    goAoF3
-    goML
-    goNM
-    goCS
-    goSengoku
-    goSuperS
-    goLB2
-    goRA
-    goSS4_a
-    goLR
+    go*
     ss_unswizzle.c
 
 Then compile ss_unswizzle.c:
