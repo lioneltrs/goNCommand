@@ -44,17 +44,23 @@ dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 skip=$((0x0
 # Sprites
 # It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
 ./ss_unswizzle "$MY_RAW_ROMS_DIR"/c1.bin odd even
-split -b 2097152 even even_d
-split -b 2097152 odd odd_d
 
-mv even_daa "$MY_OUT_ROM_DIR"/"$ROM_ID"-c2.c2
-mv even_dab "$MY_OUT_ROM_DIR"/"$ROM_ID"-c4.c4
+( dd if=even skip=$((0x0)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+    dd if=even skip=$((0x200000)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+) > "$MY_OUT_ROM_DIR"/"$ROM_ID"-c2.c2
 
-mv odd_daa "$MY_OUT_ROM_DIR"/"$ROM_ID"-c1.c1
-mv odd_dab "$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3
+( dd if=odd skip=$((0x0)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+    dd if=odd skip=$((0x200000)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+) > "$MY_OUT_ROM_DIR"/"$ROM_ID"-c1.c1
+
+( dd if=even skip=$((0x100000)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+    dd if=even skip=$((0x300000)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+) > "$MY_OUT_ROM_DIR"/"$ROM_ID"-c4.c4
+
+( dd if=odd skip=$((0x100000)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+    dd if=odd skip=$((0x300000)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+) > "$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3
 
 rm even odd
-
-# To make these work post mame 0.80, I had to convert the C files again with RomBuild v.0.8 NeoGeo Special: http://www.logiqx.com/Tools/ROMBuild/
 
 zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
