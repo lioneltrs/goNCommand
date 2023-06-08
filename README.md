@@ -1,6 +1,6 @@
 # goNCommand
 
-goNCommand is a set of Bash scripts to convert 19 games to romsets for Final Burn Alpha, MAME or FBNeo.
+goNCommand is a set of Bash scripts to convert 21 games to romsets for Final Burn Alpha, MAME or FBNeo.
 
 | ROM | ROM_NAME | GAME_NAME             |
 |-----|----------|-----------------------|
@@ -10,6 +10,7 @@ goNCommand is a set of Bash scripts to convert 19 games to romsets for Final Bur
 | 017 | sengoku  | Sengoku               |
 | 020 | gpilots  | Ghost Pilots          |
 | 024 | lresort  | Last Resort           |
+| 031 | socbrawl | Soccer Brawl          |
 | 032 | roboarmy | Robo Army             |
 | 037 | crsword  | Crossed Swords        |
 | 039 | kotm2    | King of the Monsters 2|
@@ -18,6 +19,7 @@ goNCommand is a set of Bash scripts to convert 19 games to romsets for Final Bur
 | 050 | ncommand | Ninja Commando        |
 | 052 | ssideki  | Super Sidekicks       |
 | 096 | aof3     | Art of Fighting 3     |
+| 212 | overtop  | Over Top              |
 | 216 | kizuna   | Kizuna Encounter      |
 | 217 | ninjamas | Ninja Master's        |
 | 222 | samsho4  | Samurai Shodown IV    |
