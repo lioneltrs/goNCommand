@@ -5,10 +5,10 @@
 . ./romExtractionTools.sh
 
 #=========================================================
-MY_RAW_ROMS_DIR="/home/lionel2/provi/amazon/Super Sidekicks/Data/rom"
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"Super Sidekicks/Data/rom"
 #=========================================================
 # MY_OUT_ROM_DIR_1 is the temporary output directory for ninjamas
-MY_OUT_ROM_DIR_1="/home/lionel2/provi/lionel_ss"
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
 #=========================================================
 MY_ZIP_NAME=ssideki
 ROM_ID="052"
@@ -44,8 +44,8 @@ printf '\x00' | dd of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1 bs=1 seek=$((0x115)) cou
 
 # Sprites
 # It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
-dd if="$MY_RAW_ROMS_DIR"/c1.bin of=provi_c1.bin skip=0 count=$(($((0x200000))+$((0x000000)))) iflag=$IFLAG
-dd if="$MY_RAW_ROMS_DIR"/c1.bin of=provi_c3.bin skip=$(($((0x200000))+$((0x200000)))) count=$(($((0x200000))+$((0x000000)))) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/c1.bin of=provi_c1.bin skip=0 count=$((0x200000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/c1.bin of=provi_c3.bin skip=$(($((0x200000))+$((0x200000)))) count=$((0x200000)) iflag=$IFLAG
 ./ss_unswizzle provi_c1.bin odd1 even1
 ./ss_unswizzle provi_c3.bin odd3 even3
 cat odd1 odd3 >"$MY_OUT_ROM_DIR"/"$ROM_ID"-c1.c1

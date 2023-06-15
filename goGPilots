@@ -6,10 +6,10 @@
 . ./romExtractionTools.sh
 
 #=========================================================
-MY_RAW_ROMS_DIR="/home/lionel2/provi/amazon/Ghost Pilots/Data/rom"
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"Ghost Pilots/Data/rom"
 #=========================================================
 # MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
-MY_OUT_ROM_DIR_1="/home/lionel2/provi/lionel_gpilots"
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
 #=========================================================
 MY_ZIP_NAME=gpilots
 ROM_ID="020"

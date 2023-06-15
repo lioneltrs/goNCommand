@@ -8,10 +8,10 @@
 . ./romExtractionTools.sh
 
 #=========================================================
-MY_RAW_ROMS_DIR="/home/lionel2/provi/amazon/The Super Spy/Data/rom"
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"The Super Spy/Data/rom"
 #=========================================================
 # MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
-MY_OUT_ROM_DIR_1="/home/lionel2/provi/lionel_superspy"
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
 #=========================================================
 MY_ZIP_NAME="superspy"
 ROM_ID="011"

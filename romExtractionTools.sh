@@ -7,6 +7,8 @@
 # For games from the Amazon Prime Gaming game.
 
 IFLAG=skip_bytes,count_bytes
+AMAZONGAMEFOLDER="/mnt/d/Amazon Games/Library"
+ROMOUTPUTFOLDER="/mnt/d/emu/Kawaks/roms/neogeo"
 
 # Test if zip is installed.
 function checkForZip() {

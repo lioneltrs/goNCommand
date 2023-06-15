@@ -5,10 +5,10 @@
 # Script to build a MAME or FBAlpha romset and also FBNeo romset (extension: .zip) for The King of Fighters '97, from the Amazon Prime Gaming game.
 
 #=========================================================
-MY_RAW_ROMS_DIR="/home/dalmo/Documenti/goNCommand-main/romKOF97"
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"The King of Fighters 97/Data/rom"
 #=========================================================
 # MY_OUT_ROM_DIR_1 is the temporary output directory for ninjamas
-MY_OUT_ROM_DIR_1="/home/dalmo/Documenti/goNCommand-main/tmp/"
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
 #=========================================================
 MY_ZIP_NAME=kof97
 ROM_ID="232"

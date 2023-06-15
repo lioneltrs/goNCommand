@@ -8,10 +8,10 @@
 . ./romExtractionTools.sh
 
 #=========================================================
-MY_RAW_ROMS_DIR="/home/lionel2/provi/amazon/3 Count Bout/Data/rom"
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"3 Count Bout/Data/rom"
 #=========================================================
 # MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
-MY_OUT_ROM_DIR_1="/home/lionel2/provi/lionel_3countb"
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
 #=========================================================
 MY_ZIP_NAME="3countb"
 ROM_ID="043"
