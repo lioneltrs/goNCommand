@@ -1,11 +1,12 @@
 # goNCommand
 
-goNCommand is a set of Bash scripts to convert 21 games to romsets for Final Burn Alpha, MAME or FBNeo.
+goNCommand is a set of Bash scripts to convert 23 games to romsets for Final Burn Alpha, MAME or FBNeo.
 
 | ROM | ROM_NAME | GAME_NAME             |
 |-----|----------|-----------------------|
 | 005 | maglord  | Magician Lord         |
 | 007 | alpham2  | Alpha Mission II      |
+| 011 | superspy | The Super Spy         |
 | 014 | mutnat   | Mutation Nation       |
 | 017 | sengoku  | Sengoku               |
 | 020 | gpilots  | Ghost Pilots          |
@@ -16,6 +17,7 @@ goNCommand is a set of Bash scripts to convert 21 games to romsets for Final Bur
 | 039 | kotm2    | King of the Monsters 2|
 | 040 | sengoku2 | Sengoku 2             |
 | 043 | 3countb  | 3 Count Bout          |
+| 046 | tophuntr | Top Hunter            |
 | 050 | ncommand | Ninja Commando        |
 | 052 | ssideki  | Super Sidekicks       |
 | 096 | aof3     | Art of Fighting 3     |
