@@ -1,0 +1,65 @@
+#!/bin/bash
+# Luca Dal Molin, 2023
+# based on the work of
+# Lionel Cordesses, 2023.
+# Script to build a MAME or FBAlpha romset and also FBNeo romset (extension: .zip) for The King of Fighters '97, from the Amazon Prime Gaming game.
+
+#=========================================================
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"The King of Fighters 97/Data/rom"
+#=========================================================
+# MY_OUT_ROM_DIR_1 is the temporary output directory for ninjamas
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
+#=========================================================
+MY_ZIP_NAME=kof97
+ROM_ID="232"
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Do not edit the path below this line!
+#
+MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
+
+checkForZip
+checkForCompiledSwizzle
+cleanFilesForReRun $MY_OUT_ROM_DIR $MY_ZIP_NAME
+
+# Check if s2.bin is available, and copy it as 232-s1.s1.
+if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
+    echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
+fi
+
+cp "$MY_RAW_ROMS_DIR"/s2.bin "$MY_OUT_ROM_DIR"/232-s1.s1
+
+
+# Sound data
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/232-v1.v1 skip=0 count=$((0x400000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/232-v2.v2 skip=$((0x400000)) count=$((0x400000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/232-v3.v3 skip=$((0x800000)) count=$((0x400000)) iflag=skip_bytes,count_bytes
+
+
+# Z80 code
+cp "$MY_RAW_ROMS_DIR"/m1.bin "$MY_OUT_ROM_DIR"/232-m1.m1
+
+# 68K code
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/232-p1.p1 skip=$((0x0)) count=$((0x100000)) iflag=skip_bytes,count_bytes
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/232-p2.sp2 skip=$((0x100000)) count=$((0x400000)) iflag=skip_bytes,count_bytes
+
+# Sprites
+# It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
+./ss_unswizzle "$MY_RAW_ROMS_DIR"/c1.bin odd even
+split -b 4194304 even even_d
+split -b 4194304 odd odd_d
+
+mv even_daa "$MY_OUT_ROM_DIR"/232-c2.c2
+dd if=even_dab of="$MY_OUT_ROM_DIR"/232-c2.c2 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+mv even_dac "$MY_OUT_ROM_DIR"/232-c4.c4
+dd if=even_dad of="$MY_OUT_ROM_DIR"/232-c4.c4 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+mv even_dae "$MY_OUT_ROM_DIR"/232-c6.c6
+
+mv odd_daa "$MY_OUT_ROM_DIR"/232-c1.c1
+dd if=odd_dab of="$MY_OUT_ROM_DIR"/232-c1.c1 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+mv odd_dac "$MY_OUT_ROM_DIR"/232-c3.c3
+dd if=odd_dad of="$MY_OUT_ROM_DIR"/232-c3.c3 iflag=skip_bytes,count_bytes oflag=append conv=notrunc
+mv odd_dae "$MY_OUT_ROM_DIR"/232-c5.c5
+
+rm even odd even_da* odd_da*
+
+zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
