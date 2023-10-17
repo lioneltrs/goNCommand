@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# Tomasz Bednarz, 2023
+# based on work by
+# Lionel Cordesses, 2023.
+# Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for Last Blade 2, from the Amazon Prime Gaming game.
+
+. ./romExtractionTools.sh
+
+#=========================================================
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"King of the Monsters 2/Data/rom"
+#=========================================================
+# MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
+#=========================================================
+MY_ZIP_NAME=kotm2
+ROM_ID="039"
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Do not edit the path below this line!
+#
+MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
+
+checkForZip
+checkForCompiledSwizzle
+cleanFilesForReRun $MY_OUT_ROM_DIR $MY_ZIP_NAME
+
+# Check if s2.bin is available, and copy it as rom_id-s1.bin.
+if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
+    echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
+fi
+cp "$MY_RAW_ROMS_DIR"/s2.bin "$MY_OUT_ROM_DIR"/"$ROM_ID"-s1.bin
+
+# Sound data
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v2.bin skip=0 count=$((0x200000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v4.bin skip=$((0x200000)) count=$((0x100000)) iflag=$IFLAG
+
+# Z80 code
+cp "$MY_RAW_ROMS_DIR"/m1.bin "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.bin
+
+# 68K code
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.bin skip=$((0x0)) count=$((0x80000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p2.bin skip=$((0x80000)) count=$((0x80000)) iflag=$IFLAG
+
+# Sprites
+# It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
+./ss_unswizzle "$MY_RAW_ROMS_DIR"/c1.bin odd even
+split -b 524288 even even_d
+split -b 524288 odd odd_d
+
+cat  odd_daa odd_dab odd_dae odd_daf >"$MY_OUT_ROM_DIR"/"$ROM_ID"-c1.c1
+cat  even_daa even_dab even_dae even_daf >"$MY_OUT_ROM_DIR"/"$ROM_ID"-c2.c2
+
+mv odd_dac "$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3
+mv even_dac "$MY_OUT_ROM_DIR"/"$ROM_ID"-c4.c4
+
+rm even odd even_daa even_dab even_dad even_dae even_daf odd_daa odd_dab odd_dad odd_dae odd_daf
+
+zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"

@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# Tomasz Bednarz, 2023
+# based on work by
+# Lionel Cordesses, 2023.
+# Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for Kizuna Encounter from the Amazon Prime Gaming game.
+
+. ./romExtractionTools.sh
+
+#=========================================================
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"Kizuna Encounter - Super Tag Battle/Data/rom"
+#=========================================================
+# MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
+#=========================================================
+MY_ZIP_NAME="kizuna"
+ROM_ID="216"
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Do not edit the path below this line!
+#
+MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
+
+checkForZip
+checkForCompiledSwizzle
+cleanFilesForReRun $MY_OUT_ROM_DIR $MY_ZIP_NAME
+
+# Check if s2.bin is available, and copy it as 216-s1.s1.
+if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
+    echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
+fi
+cp "$MY_RAW_ROMS_DIR"/s2.bin "$MY_OUT_ROM_DIR"/"$ROM_ID"-s1.s1
+
+# Sound data
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/059-v1.v1 skip=0 count=$((0x200000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v2.v2 skip=$((0x200000)) count=$((0x200000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/059-v3.v3 skip=$((0x400000)) count=$((0x200000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v4.v4 skip=$((0x600000)) count=$((0x200000)) iflag=$IFLAG
+
+# Z80 code
+cp "$MY_RAW_ROMS_DIR"/m1.bin "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1
+
+# 68K code
+(
+    dd if="$MY_RAW_ROMS_DIR"/p1.bin skip=$((0x100000)) count=$((0x100000)) iflag=$IFLAG
+    dd if="$MY_RAW_ROMS_DIR"/p1.bin skip=0 count=$((0x100000)) iflag=$IFLAG
+) > "$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.p1
+
+# Sprites
+# It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
+./ss_unswizzle "$MY_RAW_ROMS_DIR"/c1.bin odd even
+split -b 2097152 even even_d
+split -b 2097152 odd odd_d
+
+mv even_daa "$MY_OUT_ROM_DIR"/059-c2.c2
+mv even_dae "$MY_OUT_ROM_DIR"/059-c6.c6
+mv even_dag "$MY_OUT_ROM_DIR"/059-c8.c8
+
+mv odd_daa "$MY_OUT_ROM_DIR"/059-c1.c1
+mv odd_dae "$MY_OUT_ROM_DIR"/059-c5.c5
+mv odd_dag "$MY_OUT_ROM_DIR"/059-c7.c7
+
+cat odd_dac odd_dad >"$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3
+cat even_dac even_dad >"$MY_OUT_ROM_DIR"/"$ROM_ID"-c4.c4
+
+rm even odd odd_dab odd_dac odd_dad odd_daf even_dab even_dac even_dad even_daf
+
+zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"
