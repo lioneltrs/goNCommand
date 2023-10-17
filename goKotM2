@@ -22,13 +22,14 @@ MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
 
 checkForZip
 checkForCompiledSwizzle
-cleanFilesForReRun $MY_OUT_ROM_DIR $MY_ZIP_NAME
+cleanFilesForReRun "$MY_OUT_ROM_DIR" "$MY_ZIP_NAME"
 
 # Check if s2.bin is available, and copy it as rom_id-s1.bin.
 if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
     echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
 fi
 cp "$MY_RAW_ROMS_DIR"/s2.bin "$MY_OUT_ROM_DIR"/"$ROM_ID"-s1.bin
+chmod -x "$MY_OUT_ROM_DIR"/"$ROM_ID"-s1.bin
 
 # Sound data
 dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v2.bin skip=0 count=$((0x200000)) iflag=$IFLAG
@@ -36,6 +37,7 @@ dd if="$MY_RAW_ROMS_DIR"/v1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v4.bin skip=$((0x
 
 # Z80 code
 cp "$MY_RAW_ROMS_DIR"/m1.bin "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.bin
+chmod -x "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.bin
 
 # 68K code
 dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-p1.bin skip=$((0x0)) count=$((0x80000)) iflag=$IFLAG
