@@ -61,9 +61,9 @@ You should get a ncommand.zip file (or gpilots.zip, or aof3.zip, or maglord.zip,
 ## Background and information
 The C code ss_unswizzle.c was written by ark (the script goNCommand links to the original post where I found it).
 
-The script goNCommand creates all but one file that match FBNeo CRC32. The file 050-p1.p1 does not match the CRC32 given by FBNeo, and I do not know how to fix this, as it is a simple copy of the original file. The game seems to run fine: feel free to investigate.
+~~The script goNCommand creates all but one file that match FBNeo CRC32. The file 050-p1.p1 does not match the CRC32 given by FBNeo, and I do not know how to fix this, as it is a simple copy of the original file. The game seems to run fine: feel free to investigate.~~
 
-Update: a friend noticed that 050-p1.p1 differs from the "known" file only at one address. I updated all the scripts, as it seems to be the case for all of them.
+~~Update: a friend noticed that 050-p1.p1 differs from the "known" file only at one address. I updated all the scripts when needed.~~
 
 Thank you to contributors Lx32, RedundantCich for theirs scripts.
 
