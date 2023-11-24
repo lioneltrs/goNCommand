@@ -6,7 +6,7 @@
 . ./romExtractionTools.sh
 
 #=========================================================
-MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"ninja_commando/rom"
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"Ninja Commando/Data/rom"
 #=========================================================
 # MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
 MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
