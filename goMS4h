@@ -1,0 +1,119 @@
+#!/bin/bash
+# Based on  work by:
+# + alhumbra https://milkchoco.info/archives/8695
+# + scrap-a http://blog.livedoor.jp/scrap_a/archives/37910430.html
+# + Tomasz Bednarz, 2023.
+#
+# Lionel Cordesses, November 2024.
+# Script to build a MAME or FBAlpha romset (extension: .zip_original), and also FBNeo romset (extension: .zip) for Metal Slug 4 from the Amazon Prime Gaming game.
+#
+# This script requires the source code neo-cmc.zip created by scrap-a.
+# Neo_cmc.zip is available at: http://blog.livedoor.jp/scrap_a/neo-cmc.zip
+# You will need to unzip it, go to the src directory, modify coretmpl.h by adding #include <cstring> just before #include <array> (I needed it on Kubuntu 22.04).
+# It can be done with this command line:
+# sed -i.bak 's|#include <array>|#include <cstring>\n#include <array> //Lionel added the #include <cstring>|' coretmpl.h
+# You then compile it: g++ *.cpp -o neo_cmc
+# Finally, you put the program neo_cmc in your working directory where this script is, along with ss_unswizzle.
+
+. ./romExtractionTools.sh
+
+#=========================================================
+MY_RAW_ROMS_DIR="$AMAZONGAMEFOLDER"/"Metal Slug 4/Data/rom"
+#=========================================================
+# MY_OUT_ROM_DIR_1 is the temporary output directory for ncommand
+MY_OUT_ROM_DIR_1="$ROMOUTPUTFOLDER"
+#=========================================================
+MY_ZIP_NAME="mslug4h"
+ROM_ID="263"
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Do not edit the path below this line!
+#
+MY_OUT_ROM_DIR="$MY_OUT_ROM_DIR_1"/"$MY_ZIP_NAME"
+
+checkForZip
+checkForCompiledSwizzle
+cleanFilesForReRun "$MY_OUT_ROM_DIR" "$MY_ZIP_NAME"
+
+if ! command -v srec_cat &> /dev/null
+    then
+        echo "srec_cat could not be found. Maybe "sudo apt-get install srecord"?"
+        exit
+    fi
+
+if ! command -v ./neo-cmc &> /dev/null
+    then
+        echo "./neo-cmc could not be found."
+        echo "You may get it from http://blog.livedoor.jp/scrap_a/archives/37910430.html and then compile it, and put it in the current directory."
+        exit
+    fi
+
+# Check if s2.bin is available, and copy.
+if [ ! -f "$MY_RAW_ROMS_DIR"/s2.bin ]; then
+    echo "File s2.bin not found in $MY_RAW_ROMS_DIR!"
+fi
+dd if="$MY_RAW_ROMS_DIR"/s2.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-s1d.s1 skip=$((0x0)) count=$((131072)) iflag=$IFLAG
+
+#exit 1
+
+# Sound data
+./neo-cmc "$MY_RAW_ROMS_DIR"/v1.bin 0 v1enc.tmp 1 "$ROM_ID" V
+dd if="v1enc.tmp" of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v1.v1 skip=0 count=$((0x800000)) iflag=$IFLAG
+dd if="v1enc.tmp" of="$MY_OUT_ROM_DIR"/"$ROM_ID"-v2.v2 skip=$((0x800000)) count=$((0x800000)) iflag=$IFLAG
+rm v1enc.tmp
+
+# Z80 code
+dd if="$MY_RAW_ROMS_DIR"/m1.bin of="$ROM_ID"-m1.m1b skip=$((0x0)) count=$((0x010000)) iflag=$IFLAG
+# Create the 64KB of 0xff
+dd if=/dev/zero ibs=1k count=64 | tr "\000" "\377" >tmp0xFF.bin
+cat "$ROM_ID"-m1.m1b tmp0xFF.bin >"$ROM_ID"-m1d.m1
+# neo-cmc source code is from this person's blog: http://blog.livedoor.jp/scrap_a/archives/37910430.html
+./neo-cmc "$ROM_ID"-m1d.m1 0 "$ROM_ID"-m1.m1 1 "$ROM_ID" M
+mv "$ROM_ID"-m1.m1 "$MY_OUT_ROM_DIR"/"$ROM_ID"-m1.m1
+rm "$ROM_ID"-m1.m1b tmp0xFF.bin "$ROM_ID"-m1d.m1
+
+
+# 68K code
+#
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-ph1.p1 skip=$((0x0)) count=$((0x100000)) iflag=$IFLAG
+dd if="$MY_RAW_ROMS_DIR"/p1.bin of="$MY_OUT_ROM_DIR"/"$ROM_ID"-ph2.sp2 skip=$((0x100000)) count=$((0x400000)) iflag=$IFLAG
+
+
+# Sprites
+# It relies on the code written in Ack's post at https://www.arcade-projects.com/threads/samurai-shodown-v-perfect-on-real-hardware.13565/page-2
+./ss_unswizzle "$MY_RAW_ROMS_DIR"/c1.bin odd even
+
+split -b 8388608 even even_d
+split -b 8388608 odd odd_d
+
+mv even_daa "$ROM_ID"-c2d.c2
+mv even_dab "$ROM_ID"-c4d.c4
+mv even_dac "$ROM_ID"-c6d.c6
+
+mv odd_daa "$ROM_ID"-c1d.c1
+mv odd_dab "$ROM_ID"-c3d.c3
+mv odd_dac "$ROM_ID"-c5d.c5
+
+cat "$ROM_ID"-c1d.c1 "$ROM_ID"-c3d.c3 "$ROM_ID"-c5d.c5>odd1.tmp
+cat "$ROM_ID"-c2d.c2 "$ROM_ID"-c4d.c4 "$ROM_ID"-c6d.c6> even1.tmp
+
+#./BSwap c B c_dec.tmp oddeven.txt odd1.tmp even1.tmp
+srec_cat -o c_dec.tmp -Binary even1.tmp -Binary -unsplit 2 1 odd1.tmp -Binary -unsplit 2 0
+
+./neo-cmc c_dec.tmp 0 c_enc.tmp 1 "$ROM_ID" C
+
+#./BSwap d B c_enc.tmp oddeven.txt odd_enc.tmp even_enc.tmp
+srec_cat c_enc.tmp -Binary -split 2 0 -o odd_enc.tmp -Binary
+srec_cat c_enc.tmp -Binary -split 2 1 -o even_enc.tmp -Binary
+
+dd if=odd_enc.tmp of="$MY_OUT_ROM_DIR"/"$ROM_ID"-c1.c1 skip=$((0x0)) count=$((0x800000)) iflag=$IFLAG
+dd if=odd_enc.tmp of="$MY_OUT_ROM_DIR"/"$ROM_ID"-c3.c3 skip=$((0x800000)) count=$((0x800000)) iflag=$IFLAG
+dd if=odd_enc.tmp of="$MY_OUT_ROM_DIR"/"$ROM_ID"-c5.c5 skip=$((0x1000000)) count=$((0x800000)) iflag=$IFLAG
+
+dd if=even_enc.tmp of="$MY_OUT_ROM_DIR"/"$ROM_ID"-c2.c2 skip=$((0x0)) count=$((0x800000)) iflag=$IFLAG
+dd if=even_enc.tmp of="$MY_OUT_ROM_DIR"/"$ROM_ID"-c4.c4 skip=$((0x800000)) count=$((0x800000)) iflag=$IFLAG
+dd if=even_enc.tmp of="$MY_OUT_ROM_DIR"/"$ROM_ID"-c6.c6 skip=$((0x1000000)) count=$((0x800000)) iflag=$IFLAG
+
+rm "$ROM_ID"-c2d.c2 "$ROM_ID"-c4d.c4 "$ROM_ID"-c6d.c6 "$ROM_ID"-c1d.c1 "$ROM_ID"-c3d.c3 "$ROM_ID"-c5d.c5 odd1.tmp even1.tmp odd_enc.tmp even_enc.tmp
+rm even odd c_dec.tmp c_enc.tmp
+
+zip -j -r "$MY_ZIP_NAME".zip "$MY_OUT_ROM_DIR"

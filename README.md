@@ -27,6 +27,8 @@ goNCommand is a set of Bash scripts to convert 23 games to romsets for Final Bur
 | 222 | samsho4  | Samurai Shodown IV    |
 | 232 | kof97    | King of Fighters '97  |
 | 243 | lastbld2 | Last Blade 2          |
+| 263 | mslug4h  | Metal Slug 4          |
+| 271 | kof2003h | King of Fighters 2003 |
 
 ## Installation
 
@@ -76,7 +78,7 @@ Other useful scripts to extract and convert games are available from:
 
 ## Contributing
 
-Feel free to fork this code (and solve the Metal Slug 4 or the King of Fighters 2003 problems).
+Feel free to fork this code. (The Metal Slug 4 or the King of Fighters 2003 problems are solved thanks to many smart people: alhumbra and scrap-a and others).
 
 ## License
 
