@@ -1,6 +1,6 @@
 # goNCommand
 
-goNCommand is a set of Bash scripts to convert 23 games to romsets for Final Burn Alpha, MAME or FBNeo.
+goNCommand is a set of Bash scripts to convert 25 games to romsets for Final Burn Alpha, MAME or FBNeo.
 
 | ROM | ROM_NAME | GAME_NAME             |
 |-----|----------|-----------------------|
